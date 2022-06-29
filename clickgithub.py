@@ -1,4 +1,3 @@
-#python v3.7.4
 import asyncio, time
 from pyppeteer import launch
 from win10toast import ToastNotifier
@@ -6,15 +5,15 @@ from win10toast import ToastNotifier
 
 
 
-async def main():
-    browser = await launch(headless=True, dumpio=True, autoClose=False,
+async def main(mod,webpage):
+    browser = await launch(headless=mod, dumpio=True, autoClose=False,
                            args=['--no-sandbox', '--window-size=1920,1080', '--disable-infobars'])   # 进入有头模式
     page_list = await browser.pages()
     #page = await browser.newPage()           # 打开新的标签页
     page = page_list[-1]
 
     await page.setViewport({'width': 1920, 'height': 1080})      # 页面大小一致
-    await page.goto('https://github.com/') # 访问主页
+    await page.goto(webpage) # 访问主页
 
     # evaluate()是执行js的方法，js逆向时如果需要在浏览器环境下执行js代码的话可以利用这个方法
     # js为设置webdriver的值，防止网站检测
@@ -34,15 +33,30 @@ async def main():
 ##                           'delay': 300,     # 毫秒
 ##                           })
     #等待元素出现
-    #await page.waitForSelector('#notify-content > form > div:nth-child(4) > div > input.btn.btn-success')
-    #await asyncio.sleep(2)
-    await page.click('#notify-content > form > div:nth-child(4) > div > input.btn.btn-success')
-    await browser.close()
+    #WR = await page.waitForSelector('#notify-content > form > div:nth-child(4) > div > input.btn.btn-success')
+ 
     
-    toaster = ToastNotifier()
-    toaster.show_toast("Tip",'Complete Click github!!!', threaded=False, icon_path=None, duration=100)
+    while True:
+        try:
+            
+            await page.click('#notify-content > form > div:nth-child(4) > div > input.btn.btn-success')
+            print("have a page elem")
+            print("click complete,waiting for next time")
+        except:
+            print("waiting")
+            await asyncio.sleep(60)
+            await page.reload()
+
+
+
+    #await browser.close()
+    
+    #toaster = ToastNotifier()
+    #toaster.show_toast("Tip",'Complete Click github!!!', threaded=False, icon_path=None, duration=100)
 
 
     
-    
-asyncio.get_event_loop().run_until_complete(main()) #调用
+mod = False
+webpage = 'https://github.com/'
+
+asyncio.get_event_loop().run_until_complete(main(mod,webpage)) #调用
